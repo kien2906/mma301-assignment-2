@@ -10,6 +10,8 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.anonymous.Kien_CE190462",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -19,6 +21,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": ["expo-status-bar", "expo-notifications", "expo-font"],
+    "extra": {
+      "eas": {
+        "projectId": "b9623012-60f4-4e8e-aa9d-e5bf55ef6e8b"
+      }
     }
   }
 }

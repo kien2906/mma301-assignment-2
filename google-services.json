@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "516311838254",
+    "project_id": "mma301-assignment2",
+    "storage_bucket": "mma301-assignment2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:516311838254:android:ed693d0267ecfbfa4df9bf",
+        "android_client_info": {
+          "package_name": "com.anonymous.Kien_CE190462"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDt32fd6I8_X2UBIasO88HY9mIJzpSmI0A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
