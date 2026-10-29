@@ -11,7 +11,7 @@ export default function ProductCard({ product, onPress }) {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <Image
-        source={{ uri: product.image }}
+        source={{ uri: product.thumbnail }}
         style={styles.image}
       />
 
