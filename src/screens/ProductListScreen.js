@@ -28,7 +28,6 @@ export default function ProductListScreen({ navigation }) {
   } = useProducts();
   const [keyword, setKeyword] = useState("");
   const [searchResults, setSearchResults] = useState(null);
-  const [searchLoading, setSearchLoading] = useState(false);
   const handleSearch = async (text) => {
     setKeyword(text);
 

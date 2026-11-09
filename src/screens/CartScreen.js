@@ -27,7 +27,10 @@ export default function CartScreen() {
             item={item}
             onDecrease={() => decreaseQuantity(item.id)}
             onRemove={() => removeFromCart(item.id)}
-            onIncrease={() => increaseQuantity(item.id)}
+            onIncrease={() => {
+              increaseQuantity(item.id)
+
+            }}
           />
         )}
         ListEmptyComponent={
@@ -35,7 +38,7 @@ export default function CartScreen() {
             <Text style={styles.emptyText}>Your cart is empty</Text>
           </View>
         }
-        
+
       />
 
       <CartSummary totalItems={totalItems} totalPrice={totalPrice} />

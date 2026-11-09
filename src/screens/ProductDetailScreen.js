@@ -7,12 +7,15 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  Modal,
+  View,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import useCart from "../hooks/useCart";
 import useWishlist from "../hooks/useWishlist";
 import { showWishlistNotification } from "../services/notificationService";
-export default function ProductDetailScreen({ route }) {
+export default function ProductDetailScreen({ route, navigation }) {
   const { product } = route.params;
 
   const { addCart, items } = useCart();
@@ -20,13 +23,14 @@ export default function ProductDetailScreen({ route }) {
   const { toggleWishlist, isFavorite, error } = useWishlist();
 
   const [savingWishlist, setSavingWishlist] = useState(false);
+  const [cartModalVisible, setCartModalVisible] = useState(false);
 
   const favorite = isFavorite(product.id);
 
   const cartItem = items.find((item) => item.id === product.id);
 
   const quantityInCart = cartItem?.quantity ?? 0;
-
+  
   const stock = product.stock ?? 0;
 
   const isOutOfStock = quantityInCart >= stock;
@@ -37,10 +41,9 @@ export default function ProductDetailScreen({ route }) {
       Alert.alert("Out of Stock", "Cannot add more products.");
       return;
     }
-
     addCart(product);
-
-    Alert.alert("Success", `${product.title} added to your cart!`);
+    addCart(product);
+    setCartModalVisible(true);
   };
 
   // Add / Remove Wishlist
@@ -69,58 +72,119 @@ export default function ProductDetailScreen({ route }) {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* Product Image */}
-      <Image source={{ uri: product.thumbnail }} style={styles.image} />
-
-      {/* Product Information */}
-      <Text style={styles.title}>{product.title}</Text>
-
-      <Text style={styles.price}>${product.price}</Text>
-
-      <Text style={styles.category}>Category: {product.category}</Text>
-
-      <Text style={styles.stock}>Available: {stock}</Text>
-
-      <Text style={styles.description}>{product.description}</Text>
-
-      {/* Add to Cart */}
-      <TouchableOpacity
-        style={[styles.button, isOutOfStock && styles.disabledButton]}
-        onPress={handleAddCart}
-        disabled={isOutOfStock}
+    <>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.buttonText}>
-          {stock <= 0
-            ? "Out of Stock"
-            : isOutOfStock
-              ? "Stock Limit Reached"
-              : "Add to Cart"}
-        </Text>
-      </TouchableOpacity>
+        {/* Product Image */}
+        <Image source={{ uri: product.thumbnail }} style={styles.image} />
 
-      {/* Wishlist */}
-      <TouchableOpacity
-        style={[styles.wishlistButton, savingWishlist && styles.disabledButton]}
-        onPress={handleWishlist}
-        disabled={savingWishlist}
-      >
-        {savingWishlist ? (
-          <ActivityIndicator color="#6366f1" />
-        ) : (
-          <Text style={styles.wishlistText}>
-            {favorite ? "❤️ Remove from Wishlist" : "🤍 Add to Wishlist"}
+        {/* Product Information */}
+        <Text style={styles.title}>{product.title}</Text>
+
+        <Text style={styles.price}>${product.price}</Text>
+
+        <Text style={styles.category}>Category: {product.category}</Text>
+
+        <Text style={styles.stock}>Available: {stock}</Text>
+
+        <Text style={styles.description}>{product.description}</Text>
+
+        {/* Add to Cart */}
+        <TouchableOpacity
+          style={[styles.button, isOutOfStock && styles.disabledButton]}
+          onPress={handleAddCart}
+          disabled={isOutOfStock}
+        >
+          <Text style={styles.buttonText}>
+            {stock <= 0
+              ? "Out of Stock"
+              : isOutOfStock
+                ? "Stock Limit Reached"
+                : "Add to Cart"}
           </Text>
-        )}
-      </TouchableOpacity>
+        </TouchableOpacity>
 
-      {/* Firebase Error */}
-      {error && <Text style={styles.errorText}>{error}</Text>}
-    </ScrollView>
+        {/* Wishlist */}
+        <TouchableOpacity
+          style={[
+            styles.wishlistButton,
+            savingWishlist && styles.disabledButton,
+          ]}
+          onPress={handleWishlist}
+          disabled={savingWishlist}
+        >
+          {savingWishlist ? (
+            <ActivityIndicator color="#6366f1" />
+          ) : (
+            <Text style={styles.wishlistText}>
+              {favorite ? "❤️ Remove from Wishlist" : "🤍 Add to Wishlist"}
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        {/* Firebase Error */}
+        {error && <Text style={styles.errorText}>{error}</Text>}
+      </ScrollView>
+
+      <Modal
+        visible={cartModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setCartModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.successIcon}>
+              <Ionicons name="checkmark" size={30} color="#16A34A" />
+            </View>
+
+            <Text style={styles.modalTitle}>Đã thêm vào giỏ hàng</Text>
+            <Text style={styles.modalSubtitle}>
+              Sản phẩm đã được thêm thành công.
+            </Text>
+
+            <View style={styles.modalProduct}>
+              <Image
+                source={{ uri: product.thumbnail }}
+                style={styles.modalProductImage}
+              />
+              <View style={styles.modalProductInfo}>
+                <Text style={styles.modalProductTitle} numberOfLines={2}>
+                  {product.title}
+                </Text>
+                <Text style={styles.modalProductMeta}>
+                  Số lượng: {quantityInCart + 1}
+                </Text>
+                <Text style={styles.modalProductPrice}>${product.price}</Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.cartButton}
+              onPress={() => {
+                setCartModalVisible(false);
+                navigation.navigate("ProductList", { screen: "Cart" });
+              }}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.cartButtonText}>Xem giỏ hàng</Text>
+              <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.continueButton}
+              onPress={() => setCartModalVisible(false)}
+              activeOpacity={0.75}
+            >
+              <Text style={styles.continueButtonText}>Tiếp tục mua sắm</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 }
 
@@ -207,5 +271,126 @@ const styles = StyleSheet.create({
     color: "#dc2626",
     marginTop: 12,
     textAlign: "center",
+  },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(15, 23, 42, 0.58)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+
+  modalCard: {
+    width: "100%",
+    maxWidth: 400,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    padding: 24,
+    alignItems: "center",
+    shadowColor: "#0F172A",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    elevation: 12,
+  },
+
+  successIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#DCFCE7",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+
+  modalTitle: {
+    color: "#0F172A",
+    fontSize: 21,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+
+  modalSubtitle: {
+    color: "#64748B",
+    fontSize: 14,
+    marginTop: 7,
+    textAlign: "center",
+  },
+
+  modalProduct: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    borderRadius: 16,
+    padding: 12,
+    marginTop: 22,
+    marginBottom: 20,
+  },
+
+  modalProductImage: {
+    width: 72,
+    height: 72,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+  },
+
+  modalProductInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+
+  modalProductTitle: {
+    color: "#1E293B",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+
+  modalProductMeta: {
+    color: "#64748B",
+    fontSize: 12,
+    marginTop: 5,
+  },
+
+  modalProductPrice: {
+    color: "#4F46E5",
+    fontSize: 15,
+    fontWeight: "700",
+    marginTop: 4,
+  },
+
+  cartButton: {
+    width: "100%",
+    minHeight: 50,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#4F46E5",
+    borderRadius: 14,
+  },
+
+  cartButtonText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
+    marginRight: 8,
+  },
+
+  continueButton: {
+    width: "100%",
+    minHeight: 46,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 6,
+  },
+
+  continueButtonText: {
+    color: "#475569",
+    fontSize: 14,
+    fontWeight: "600",
   },
 });

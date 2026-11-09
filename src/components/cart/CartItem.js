@@ -31,6 +31,7 @@ const CartItem = ({ item, onIncrease, onDecrease, onRemove }) => {
               item.quantity >= item.stock && styles.disabledButton,
             ]}
             onPress={onIncrease}
+            disabled={item.quantity >= item.stock}
           >
             <Text
               style={styles.buttonText}
